@@ -8,7 +8,7 @@ connectDB()
     console.log(`Connected to database.`);
   })
   .catch(error => {
-    next(error);
+    throw Error(error);
   });
 
 const port = process.env.PORT || 8000;
