@@ -1,5 +1,3 @@
-import jwt from "jsonwebtoken";
-
 import catchAsyncError from "#utils/catchAsyncError.js";
 
 import User from "#models/user.model.js";
@@ -21,22 +19,40 @@ export const getUserInfo = catchAsyncError(async (req, res, next) => {
 });
 
 export const createUser = catchAsyncError(async (req, res, next) => {
-  console.log(req.body);
+  //take request fields
+  const { name, email, phoneNumber, gender, password, confPassword } = req.body;
+
+  //save the user details in the database
   const newUser = await User.create({
-    name: req.body.name,
-    email: req.body.email,
-    phoneNumber: req.body.phoneNumber,
-    password: req.body.password,
-    confPassword: req.body.confPassword,
-    gender: req.body.gender
+    name,
+    email,
+    phoneNumber,
+    gender,
+    password,
+    confPassword
   });
-  const token = await generateAccessToken(newUser._id);
-  res.status(201).json({
-    status: "success",
-    message: "User created successfully",
-    token,
-    data: {
-      user: newUser
-    }
-  });
+  //generate the access token and refresh token for the user
+  const accessToken = newUser.generateAccessToken();
+  const refreshToken = newUser.generateRefreshToken();
+
+  //cookie options
+  const options = {
+    httpOnly: true,
+    secure: true
+  };
+
+  //store the tokens in cookie and send the user details in the response
+  res
+    .status(201)
+    .cookie(`accessToken`, accessToken, options)
+    .cookie(`refreshToken`, refreshToken, options)
+    .json({
+      status: "success",
+      message: "User created successfully",
+      data: {
+        user: newUser,
+        accessToken,
+        refreshToken
+      }
+    });
 });
