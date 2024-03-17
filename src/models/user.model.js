@@ -24,7 +24,6 @@ const userSchema = new Schema(
     },
     phoneNumber: {
       type: String,
-      required: [true, "Phone number can not be empty"],
       trim: true,
       minLength: [10, "Phone number must be 10 characters long"],
       maxLength: [10, "Phone number must be 10 characters long"],
@@ -43,12 +42,6 @@ const userSchema = new Schema(
     address: {
       type: String,
       trim: true
-    },
-    gender: {
-      type: String,
-      required: [true, "Gender must be specified"],
-      trim: true,
-      enum: ["Male", "Female", "Other"]
     },
     pin: {
       type: String,
@@ -75,6 +68,7 @@ userSchema.pre(`save`, encryptPassword);
 
 //compare password using bcrypt and return true or false
 userSchema.methods.isPasswordCorrect = async function (password) {
+  // console.log(this.password);
   return await bcrypt.compare(password, this.password);
 };
 

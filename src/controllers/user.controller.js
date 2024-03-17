@@ -1,11 +1,13 @@
 import catchAsyncError from "#utils/catchAsyncError.js";
 
 import User from "#models/user.model.js";
+import AppError from "#utils/appError.js";
 
-const generateAccessToken = async id => {
-  return await jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE
-  });
+//cookie options
+const cookieOptions = {
+  httpOnly: true,
+  secure: true,
+  sameSite: `none`
 };
 
 export const getUserInfo = catchAsyncError(async (req, res, next) => {
@@ -35,17 +37,11 @@ export const createUser = catchAsyncError(async (req, res, next) => {
   const accessToken = newUser.generateAccessToken();
   const refreshToken = newUser.generateRefreshToken();
 
-  //cookie options
-  const options = {
-    httpOnly: true,
-    secure: true
-  };
-
   //store the tokens in cookie and send the user details in the response
   res
     .status(201)
-    .cookie(`accessToken`, accessToken, options)
-    .cookie(`refreshToken`, refreshToken, options)
+    .cookie(`accessToken`, accessToken, cookieOptions)
+    .cookie(`refreshToken`, refreshToken, cookieOptions)
     .json({
       status: "success",
       message: "User created successfully",
@@ -55,4 +51,72 @@ export const createUser = catchAsyncError(async (req, res, next) => {
         refreshToken
       }
     });
+});
+
+export const loginUser = catchAsyncError(async (req, res, next) => {
+  /*
+  todos
+  1. take email and password from the user
+  2. check if user exist
+  3. checks if the password is correct or not
+  4. generate access token and refresh token for the user and send it to the cookie 
+  */
+  // 1.
+  // console.log(req.body);
+  const { email, password } = req.body;
+
+  //2.
+  let user = await User.findOne({
+    email
+  });
+
+  if (!user) return next(new AppError(401, `Email or Password invalid.`));
+
+  //3.
+  user = await User.findOne({
+    email
+  }).select(`+password`);
+  const authenticated = await user.isPasswordCorrect(password);
+
+  if (!authenticated)
+    return next(new AppError(401, `Email or password invalid.`));
+
+  // 4.
+  const accessToken = user.generateAccessToken();
+  const refreshToken = user.generateRefreshToken();
+
+  res
+    .status(200)
+    .cookie(`accessToken`, accessToken, {
+      ...cookieOptions,
+      maxAge:
+        process.env.ACCESS_TOKEN_EXPIRE.replace(`d`, "") * 24 * 60 * 60 * 1000
+    })
+    .cookie(`refreshToken`, refreshToken, {
+      ...cookieOptions,
+      maxAge:
+        process.env.REFRESH_TOKEN_EXPIRE.replace(`d`, "") * 24 * 60 * 60 * 1000
+    })
+    .json({
+      status: "success",
+      data: {
+        user
+      }
+    });
+});
+
+export const logoutUser = catchAsyncError(async (req, res, next) => {
+  //extract the user id from req.user
+  const { _id } = req.user;
+
+  //update database refresh token to undefined
+  await User.findByIdAndUpdate(_id, {
+    refreshToken: undefined
+  });
+
+  res
+    .status(200)
+    .clearCookie(`accessToken`, cookieOptions)
+    .clearCookie(`refreshToken`, cookieOptions)
+    .send(`User logged out.`);
 });

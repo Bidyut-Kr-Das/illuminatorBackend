@@ -1,0 +1,9 @@
+{
+  "include": [
+    "src/routes/*.routes.js",
+    "src/models/*.model.js",
+    "src/middlewares/*.middleware.js",
+    "src/controllers/*.controller.js",
+    "src/utils/*.js"
+  ]
+}
