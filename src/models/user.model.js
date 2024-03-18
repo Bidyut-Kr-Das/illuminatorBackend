@@ -26,8 +26,7 @@ const userSchema = new Schema(
       type: String,
       trim: true,
       minLength: [10, "Phone number must be 10 characters long"],
-      maxLength: [10, "Phone number must be 10 characters long"],
-      unique: true
+      maxLength: [10, "Phone number must be 10 characters long"]
     },
     password: {
       type: String,
@@ -87,8 +86,8 @@ userSchema.methods.generateAccessToken = function () {
 };
 
 //generate refresh token
-userSchema.methods.generateRefreshToken = function () {
-  const refreshToken = jwt.sign(
+userSchema.methods.generateRefreshToken = async function () {
+  const newRefreshToken = await jwt.sign(
     {
       id: this._id
     },
@@ -97,8 +96,8 @@ userSchema.methods.generateRefreshToken = function () {
       expiresIn: process.env.REFRESH_TOKEN_EXPIRE
     }
   );
-  this.refreshToken = refreshToken;
-  return refreshToken;
+  this.refreshToken = newRefreshToken;
+  return newRefreshToken;
 };
 
 const User = model("User", userSchema);

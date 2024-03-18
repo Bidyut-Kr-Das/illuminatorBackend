@@ -22,14 +22,12 @@ export const getUserInfo = catchAsyncError(async (req, res, next) => {
 
 export const createUser = catchAsyncError(async (req, res, next) => {
   //take request fields
-  const { name, email, phoneNumber, gender, password, confPassword } = req.body;
+  const { name, email, password, confPassword } = req.body;
 
   //save the user details in the database
   const newUser = await User.create({
     name,
     email,
-    phoneNumber,
-    gender,
     password,
     confPassword
   });
