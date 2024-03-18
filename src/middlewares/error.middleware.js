@@ -11,6 +11,9 @@ const handleError = (err, req, res, next) => {
     return sendDevelopmentError(err, res);
   }
   let error = { ...err };
+  error.message = err.message;
+  console.log(error);
+  // console.log(err.message);
   if (err.code === 11000) error = duplicationError(error);
   return sendProductionError(error, res);
 };

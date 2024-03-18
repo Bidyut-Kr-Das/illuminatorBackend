@@ -7,7 +7,7 @@ import AppError from "#utils/appError.js";
 const cookieOptions = {
   httpOnly: true,
   secure: true,
-  sameSite: `none`
+  sameSite: "None"
 };
 
 export const getUserInfo = catchAsyncError(async (req, res, next) => {
@@ -100,7 +100,9 @@ export const loginUser = catchAsyncError(async (req, res, next) => {
     .json({
       status: "success",
       data: {
-        user
+        user,
+        accessToken,
+        refreshToken
       }
     });
 });

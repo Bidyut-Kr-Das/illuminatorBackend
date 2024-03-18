@@ -9,6 +9,7 @@ export const sendDevelopmentError = (err, res) => {
 };
 
 export const sendProductionError = (err, res) => {
+  // console.log(err.message);
   if (err.isOperational)
     return res.status(err.statusCode).json({
       status: err.status,
