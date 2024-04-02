@@ -106,6 +106,7 @@ export const loginUser = catchAsyncError(async (req, res, next) => {
 });
 
 export const logoutUser = catchAsyncError(async (req, res, next) => {
+  //from middleware verifyToken
   //extract the user id from req.user
   const { _id } = req.user;
 

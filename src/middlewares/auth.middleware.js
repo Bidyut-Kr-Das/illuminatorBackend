@@ -4,7 +4,7 @@ import catchAsyncError from "#utils/catchAsyncError.js";
 import AppError from "#utils/appError.js";
 import User from "#models/user.model.js";
 
-export const verifyAccessToken = catchAsyncError(async (req, res, next) => {
+export const verifyAccessToken = catchAsyncError(async (req, _, next) => {
   const token =
     req?.cookies.accessToken ||
     req?.header(`Authorization`).replace(`Bearer `, "");
