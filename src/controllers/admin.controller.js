@@ -61,3 +61,15 @@ export const adminLogin = catchAsyncError(async (req, res, next) => {
       }
     });
 });
+
+export const adminLogout = catchAsyncError(async (req,res,next)=>{
+
+const {_id} = req.user;
+
+await User.findByIdAndUpdate(_id,{
+  refreshToken : undefined,
+})  
+
+res.status(200).clearCookie(`accessToken`,cookieOptions).clearCookie(`refreshToken`,cookieOptions).send(`Logged out successful.`);
+  
+})
