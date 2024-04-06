@@ -62,14 +62,33 @@ export const adminLogin = catchAsyncError(async (req, res, next) => {
     });
 });
 
-export const adminLogout = catchAsyncError(async (req,res,next)=>{
+//protected controller
+export const adminLogout = catchAsyncError(async (req, res, next) => {
+  const { _id } = req.user;
 
-const {_id} = req.user;
+  await User.findByIdAndUpdate(_id, {
+    refreshToken: undefined
+  });
 
-await User.findByIdAndUpdate(_id,{
-  refreshToken : undefined,
-})  
+  res
+    .status(200)
+    .clearCookie(`accessToken`, cookieOptions)
+    .clearCookie(`refreshToken`, cookieOptions)
+    .send(`Logged out successful.`);
+});
 
-res.status(200).clearCookie(`accessToken`,cookieOptions).clearCookie(`refreshToken`,cookieOptions).send(`Logged out successful.`);
-  
-})
+//protected controller
+export const getAdminInfo = catchAsyncError(async (req, res, next) => {
+  const { _id } = req.user; //<- coming from middleware verifyAccessToken
+
+  const user = await User.findById(_id);
+
+  if (!user) throw new AppError(404, `User not found!`);
+  console.log(user);
+  res.status(200).json({
+    status: `success`,
+    data: {
+      user
+    }
+  });
+});
