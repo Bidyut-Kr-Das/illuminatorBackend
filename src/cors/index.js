@@ -3,10 +3,9 @@ import cors from "cors";
 //process.env.CORS_ORIGIN
 // CORS options
 const corsOptions = {
-  origin: [
+  origin: process.env.CORS_ORIGIN || [
     "http://localhost:8001",
-    "http://localhost:8003",
-    "https://illuminator-admin.vercel.app"
+    "http://localhost:8003"
   ],
   optionsSuccessStatus: 200,
   credentials: true
