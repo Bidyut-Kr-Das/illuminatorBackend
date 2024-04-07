@@ -6,6 +6,12 @@ import adminRouter from "#routes/admin.routes.js";
 import handleError from "#middlewares/error.middleware.js";
 const app = express();
 
+app.use((req, res, next) => {
+  console.log(req.headers.origin);
+  console.log(process.env.CORS_ORIGIN1);
+  console.log(process.env.CORS_ORIGIN2);
+  next();
+});
 //first middleware is corsSetup
 app.use(corsSetup);
 
